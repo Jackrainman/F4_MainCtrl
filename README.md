@@ -1,8 +1,1 @@
-ajdsfjwejrwfcasefjie
-
-
-commit trial
-
-local commit trial
-
-remote commit trial
+New_F4_Sync_Trial
