@@ -169,11 +169,11 @@ void msg_polling_task(void *pvParameters) {
     message_register_recv_callback(MSG_REMOTE, remote_receive_callback);
 
     /* 注册action接收 */
-    // act_position_register_send_uart(ACT_POS_USART_HANDLE);
+    act_position_register_send_uart(ACT_POS_USART_HANDLE);
 
     /* 注册小电脑接收 */
-    message_register_polling_uart(MSG_NUC, NUC_UART_HANDLE, 512, 512);
-    message_register_recv_callback(MSG_NUC, nuc_msg_callback);
+    // message_register_polling_uart(MSG_NUC, NUC_UART_HANDLE, 512, 512);
+    // message_register_recv_callback(MSG_NUC, nuc_msg_callback);
 
     /* 遥控器上报数据类型 */
     // remote_report_data_t report_data = REMOTE_REPORT_POSITION;
