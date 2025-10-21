@@ -49,8 +49,8 @@ chassis_state_t chassis_state = {
 };
 
 /* go_path中相关参数 */
-// pid_t nuc_flat_speed_pid;
-// pid_t nuc_flat_angle_pid;
+ pid_t nuc_flat_speed_pid;
+ pid_t nuc_flat_angle_pid;
 
 pid_t action_flat_speed_pid;
 pid_t action_flat_angle_pid;
@@ -74,10 +74,10 @@ enum {
 
 /* 固定点位+可变点位函数 */
 pos_node_t pos_array[POS_NUM + EX_NODE_NUM] = {
-    [0] = {-0.12f, 0.59f, 0.0f, POINT_TYPE_NUC_FLAT},
-    [1] = {100.11f, 200.0f, 0.0f, POINT_TYPE_NUC_FLAT},
-    [2] = {-200.78f, -300.57f, 88.09f, POINT_TYPE_NUC_FLAT},
-    [3] = {0, 0, 0, POINT_TYPE_NUC_FLAT}, /*!< 点位信息 */
+    [0] = {-0.12f, 0.59f, 0.0f, POINT_TYPE_ACTION},
+    [1] = {100.11f, 200.0f, 0.0f, POINT_TYPE_ACTION},
+    [2] = {-200.78f, -300.57f, 88.09f, POINT_TYPE_ACTION},
+    [3] = {0, 0, 0, POINT_TYPE_ACTION}, /*!< 点位信息 */
 
     /* 可变点位信息 */
     [POS_NUM +
@@ -461,7 +461,7 @@ void chassis_auto_ctrl_task(void *pvParameters) {
     pid_init(&action_flat_angle_pid, 500, 15, 0.0f, 180.0f, POSITION_PID, 1.5f,
              0.01f, 0.5f);
     go_path_pidpoint_init(&action_flat_speed_pid, &action_flat_angle_pid, 3.0, 0.5,
-                          POINT_TYPE_NUC_FLAT, LOCATION_TYPE_NUC);
+                          POINT_TYPE_ACTION, LOCATION_TYPE_ACTION);
     /* 跑环的pid*/
     // pid_init(&radium_speed_pid, 500, 500 / 2, 0.0f, 50000.0f, POSITION_PID,
     //          1.5f / 5.0f, 0.1f, 0.0f);
@@ -470,7 +470,7 @@ void chassis_auto_ctrl_task(void *pvParameters) {
     pid_init(&radium_angle_pid, 200, 8, 0.0f, 500.0f, POSITION_PID, 3.2 * 10.0f,
              0.0f, 2.0 * 10.0f);
     go_path_pidpoint_init(&radium_speed_pid, &radium_angle_pid, 20.0, 0.5,
-                          POINT_TYPE_TARGET_RADIUM, LOCATION_TYPE_NUC);
+                          POINT_TYPE_TARGET_RADIUM, LOCATION_TYPE_ACTION);
 
     /* 默认挂起自动任务 */
     vTaskSuspend(chassis_auto_ctrl_task_handle);

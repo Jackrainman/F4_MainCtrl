@@ -25,8 +25,8 @@
 #include "logger/logger.h"
 #include "my_math/my_math.h"
 
-#define ACT_POS_USART_HANDLE &usart6_handle
-#define NUC_UART_HANDLE      &uart5_handle
+#define ACT_POS_USART_HANDLE &uart5_handle
+#define NUC_UART_HANDLE      &usart6_handle
 #define REMOTE_UART_HANDLE   &uart4_handle
 
 TaskHandle_t sub_pub_task_handle;
@@ -115,7 +115,7 @@ typedef enum __attribute((packed)) {
  */
 void sub_pub_task(void *pvParameters) {
     UNUSED(pvParameters);
-    serial_flag_t send_nuc_data = SERIAL_STOP_SERVICE;
+    serial_flag_t send_act_data = SERIAL_STOP_SERVICE;
 
     /* 初始化pub_to_slave_data,防止被编译器优化*/
     memset(&pub_to_slave_data, 0, sizeof(pub_to_slave_data));
@@ -123,7 +123,7 @@ void sub_pub_task(void *pvParameters) {
     /* 主板发送给从板 */
     message_register_send_uart(MSG_TO_SLAVE, &usart2_handle, 128);
     /* F4-小电脑 */
-    message_register_send_uart(MSG_NUC, NUC_UART_HANDLE, 32);
+    //message_register_send_uart(MSG_NUC, NUC_UART_HANDLE, 32);
 
     while (1) {
         /* 更新world—yaw数据 */

@@ -67,6 +67,7 @@ typedef enum {
     MSG_REMOTE,
     MSG_TO_SLAVE,
     MSG_NUC,
+    //MSG_ACTION, 根本不需要消息回调
 
     MSG_ID_RESERVE_LEN /*!< 保留位, 用于定义数据长度 */
 } msg_id_t;
