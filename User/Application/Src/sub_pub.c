@@ -46,7 +46,6 @@ static struct __packed {
     uint8_t shoot_flag;        /* 射击标志 */
 } pub_to_slave_data;
 
-// nuc_pos_data_t g_nuc_pos_data;
 
 /**
  * @brief 订阅底盘速度

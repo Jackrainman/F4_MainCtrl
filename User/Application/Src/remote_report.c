@@ -76,15 +76,15 @@ void remote_report_task(void *pvParameters) {
 
     remote_report_data_t report_data;
 
-    while (1) {
+    while (1) { 
         xQueueReceive(remote_report_data_queue, &report_data, portMAX_DELAY);
 
         switch (report_data) {
             case REMOTE_REPORT_POSITION: {
                 /* 更新位置信息 */
-                report_chassis.x = (int16_t)g_nuc_pos_data.x;
-                report_chassis.y = (int16_t)g_nuc_pos_data.y;
-                report_chassis.yaw = (int16_t)g_nuc_pos_data.yaw;
+                report_chassis.x = (int16_t)g_action_pos_data.x;
+                report_chassis.y = (int16_t)g_action_pos_data.y;
+                report_chassis.yaw = (int16_t)g_action_pos_data.yaw;
                 // report_chassis.x = (int16_t)(HAL_GetTick()/8);
                 // report_chassis.y = (int16_t)(HAL_GetTick()/2);
                 // report_chassis.yaw = (int16_t)(HAL_GetTick()/100);

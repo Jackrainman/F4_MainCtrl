@@ -208,7 +208,6 @@ targets:
       - <virtual_root>/Drivers/HAL_Driver/stm32f4xx_ll_fmc.c
       - <virtual_root>/Drivers/HAL_Driver/stm32f4xx_hal_spi.c
       - <virtual_root>/SEEGER/SystemView
-      - <virtual_root>/Modules/odometry_string.c
     toolchain: AC6
     toolchainConfigMap:
       AC6:
