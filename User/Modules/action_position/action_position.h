@@ -10,7 +10,7 @@
 #define __ACTION_POSITION_H
 
 #include <CSP_Config.h>
-
+#include "includes.h"
 #include <stdbool.h>
 
 /**
@@ -28,7 +28,7 @@ typedef struct {
 
 extern act_pos_data_t g_action_pos_data;
 
-void act_position_register_send_uart(UART_HandleTypeDef *huart);
+void act_position_register_uart(UART_HandleTypeDef *huart);
 void act_position_parse_data(uint8_t *data, uint32_t len);
 void act_position_update_x(float new_x);
 void act_position_update_y(float new_y);

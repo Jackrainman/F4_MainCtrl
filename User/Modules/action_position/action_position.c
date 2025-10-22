@@ -2,19 +2,22 @@
  * @file    action_position.h
  * @author  Deadline039
  * @brief   东大全场定位解析代码
- * @version 1.0
+ * @version 1.2
  * @date    2023-11-11
  */
 
 #include "action_position.h"
 
 /* 串口通信句柄 */
-static UART_HandleTypeDef *send_uart;
+static UART_HandleTypeDef *send_uart = NULL;
 
 /**
  * @brief 全场定位数据
  */
 act_pos_data_t g_action_pos_data;
+
+/* 从串口接收到的字符 */
+static uint8_t g_uart_byte;
 
 /**
  * @brief 逐字节解析数据, 转换成坐标数据
@@ -89,21 +92,24 @@ static void act_position_parse_byte(uint8_t byte) {
 }
 
 /**
- * @brief 注册串口, 将通过这个串口发送数据
+ * @brief 注册串口, 将通过这个串口收发数据
  *
- * @param huart 串口句柄
+ * @param huart
  */
-void act_position_register_send_uart(UART_HandleTypeDef *huart) {
+void act_position_register_uart(UART_HandleTypeDef *huart) {
     if (huart == NULL) {
         return;
     }
 
     send_uart = huart;
+    HAL_UART_Receive_IT(huart, &g_uart_byte, 1);
+    HAL_UART_RegisterCallback(huart, HAL_UART_RX_COMPLETE_CB_ID,
+                              act_position_parse_byte);
 }
 
 /**
  * @brief 解析数据
- * 
+ *
  * @param data 数据内容
  * @param len 数据长度
  * @note 解析完毕后会更新`g_action_pos_data`全局变量
@@ -132,8 +138,8 @@ static void act_strcat(uint8_t *output_str, uint8_t *source_str, uint16_t len) {
 }
 
 /**
- * @brief 设置新数据结构体, 由于是共用体, 
- *        将小数放入时会自动将 data 数组变成小数的内存内容, 
+ * @brief 设置新数据结构体, 由于是共用体,
+ *        将小数放入时会自动将 data 数组变成小数的内存内容,
  *        无需再进行各种二进制操作把浮点数转换成 byte
  */
 static union {
@@ -145,7 +151,7 @@ static union {
  * @brief 更新 X 坐标
  *
  * @param new_x 新的 x
- * @note 为了防止重复更新全场定位数据忘记延时, 导致全场定位数据出错, 
+ * @note 为了防止重复更新全场定位数据忘记延时, 导致全场定位数据出错,
  *       函数内部会延时 10ms
  */
 void act_position_update_x(float new_x) {
@@ -160,7 +166,7 @@ void act_position_update_x(float new_x) {
  * @brief 更新 Y 坐标
  *
  * @param new_y 新的 y
- * @note 为了防止重复更新全场定位数据忘记延时, 导致全场定位数据出错, 
+ * @note 为了防止重复更新全场定位数据忘记延时, 导致全场定位数据出错,
  *       函数内部会延时 10ms
  */
 void act_position_update_y(float new_y) {
@@ -175,7 +181,7 @@ void act_position_update_y(float new_y) {
  * @brief 更新航向角 (z 轴)
  *
  * @param new_yaw 新的航向角
- * @note 为了防止重复更新全场定位数据忘记延时, 导致全场定位数据出错, 
+ * @note 为了防止重复更新全场定位数据忘记延时, 导致全场定位数据出错,
  *       函数内部会延时 10ms
  */
 void act_position_update_yaw(float new_yaw) {
@@ -189,7 +195,7 @@ void act_position_update_yaw(float new_yaw) {
 /**
  * @brief 清空全场定位数据, 从 0 开始
  *
- * @note 为了防止重复更新全场定位数据忘记延时, 导致全场定位数据出错, 
+ * @note 为了防止重复更新全场定位数据忘记延时, 导致全场定位数据出错,
  *       函数内部会延时 10ms
  */
 void act_position_reset_data(void) {
