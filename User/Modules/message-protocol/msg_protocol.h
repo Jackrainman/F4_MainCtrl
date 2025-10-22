@@ -15,7 +15,7 @@
  *      (##) 调用`message_send_data`来发送数据. 如果要更改串口, 重新调用
  *           `message_register_uart_handle`更改发送串口句柄
  *      (##) `message_send_data`函数需要指定消息 ID (`msg_id_t`), 消息数据
- *           类型 (`msg_type_t), `data`(数据指针, 也就是要发送的数据), 
+ *           类型 (`msg_type_t), `data`(数据指针, 也就是要发送的数据),
  *           以及`data_len`, 数据长度
  * (#) 接收
  *      (##) 调用`message_register_polling_uart`添加消息 ID 对应的轮询串口
@@ -66,8 +66,8 @@
 typedef enum {
     MSG_REMOTE,
     MSG_TO_SLAVE,
-    MSG_NUC,
-    //MSG_ACTION, 根本不需要消息回调
+    //MSG_NUC,       //小电脑暂时不需要
+    MSG_ACTION,      //修改为0.2版本后或许需要消息回调
 
     MSG_ID_RESERVE_LEN /*!< 保留位, 用于定义数据长度 */
 } msg_id_t;

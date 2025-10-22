@@ -115,7 +115,7 @@ typedef enum __attribute((packed)) {
  */
 void sub_pub_task(void *pvParameters) {
     UNUSED(pvParameters);
-    serial_flag_t send_act_data = SERIAL_STOP_SERVICE;
+    //serial_flag_t send_act_data = SERIAL_STOP_SERVICE;    // 没用到
 
     /* 初始化pub_to_slave_data,防止被编译器优化*/
     memset(&pub_to_slave_data, 0, sizeof(pub_to_slave_data));
@@ -124,6 +124,9 @@ void sub_pub_task(void *pvParameters) {
     message_register_send_uart(MSG_TO_SLAVE, &usart2_handle, 128);
     /* F4-小电脑 */
     //message_register_send_uart(MSG_NUC, NUC_UART_HANDLE, 32);
+
+    /* F4-码盘 */
+    message_register_send_uart(MSG_ACTION, ACT_POS_USART_HANDLE, 32);
 
     while (1) {
         /* 更新world—yaw数据 */
@@ -136,6 +139,7 @@ void sub_pub_task(void *pvParameters) {
         vTaskDelay(2);
     }
 }
+//extern act_pos_data_t g_action_pos_data;
 nuc_pos_data_t g_nuc_pos_data;
 /**
  * @brief 小电脑接收回调函数
@@ -169,6 +173,7 @@ void msg_polling_task(void *pvParameters) {
 
     /* 注册action接收 */
     act_position_register_uart(ACT_POS_USART_HANDLE);
+    //message_register_recv_callback(MSG_ACTION, act_position_parse_data);  //应该已经在注册action回收中注册过回调了，但是那是HAL库回调，这是注册msg_protocol的回调
 
     /* 注册小电脑接收 */
     // message_register_polling_uart(MSG_NUC, NUC_UART_HANDLE, 512, 512);
@@ -180,8 +185,8 @@ void msg_polling_task(void *pvParameters) {
     while (1) {
         message_polling_data();
         // xQueueSend(remote_report_data_queue, &report_data, 1);
-        float delat_x = BASKET_POINT_X - g_nuc_pos_data.x;
-        float delat_y = BASKET_POINT_Y - g_nuc_pos_data.y;
+        float delat_x = BASKET_POINT_X - g_action_pos_data.x;
+        float delat_y = BASKET_POINT_Y - g_action_pos_data.y;
 
         g_basket_radius = sqrtf(delat_x * delat_x + delat_y * delat_y);
 
