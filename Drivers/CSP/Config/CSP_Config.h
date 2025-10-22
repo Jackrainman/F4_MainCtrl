@@ -390,7 +390,7 @@
 
 // <e> USART3 (Universal asynchronous receiver transmitter)
 
-#define USART3_ENABLE 0 
+#define USART3_ENABLE 0
 
 #if USART3_ENABLE
 
@@ -889,16 +889,16 @@
 
 //   <o> UART5 Interrupt Priority <0-15>
 //   <i> The Interrupt Priority of UART5
-#define UART5_IT_PRIORITY        2
+#define UART5_IT_PRIORITY        1
 //   <o> UART5 Interrupt SubPriority <0-15>
 //   <i> The Interrupt SubPriority of UART5
-#define UART5_IT_SUB             3
+#define UART5_IT_SUB             1
 
 //   </e>
 #endif /* UART5_IT_ENABLE */
 
 //   <e> Enable UART5 DMA RX
-#define UART5_RX_DMA             1
+#define UART5_RX_DMA             0
 
 #if UART5_RX_DMA
 
@@ -1094,7 +1094,7 @@
 #endif /* USART6_IT_ENABLE */
 
 //   <e> Enable USART6 DMA RX
-#define USART6_RX_DMA             0
+#define USART6_RX_DMA             1
 
 #if USART6_RX_DMA
 
@@ -1142,7 +1142,7 @@
 #endif  /* USART6_RX_DMA */
 
 //   <e> Enable USART6 DMA TX
-#define USART6_TX_DMA             0
+#define USART6_TX_DMA             1
 
 #if USART6_TX_DMA
 

@@ -8,9 +8,9 @@
  *        - 订阅运球参数:dribblling_flag
  * @version 0.1
  * @date 2025-04-20
- *
+ * 
  * @copyright Copyright (c) 2025
- *
+ * 
  */
 
 #include <stdint.h>
@@ -31,6 +31,7 @@
 
 TaskHandle_t sub_pub_task_handle;
 TaskHandle_t msg_polling_task_handle;
+TaskHandle_t action_position_recv_task_handle;
 
 float *world_yaw; /* 指向全场定位的坐标 */
 
@@ -46,11 +47,12 @@ static struct __packed {
     uint8_t shoot_flag;        /* 射击标志 */
 } pub_to_slave_data;
 
+// nuc_pos_data_t g_nuc_pos_data;
 
 /**
  * @brief 订阅底盘速度
- *
- * @param speedx x方向速度
+ * 
+ * @param speedx x方向速度 
  * @param speedy y方向速度
  * @param speedw w方向速度
  */
@@ -61,8 +63,8 @@ void sub_chassis_speed(float speedx, float speedy, float speedw) {
 }
 
 /**
- * @brief 订阅底盘驻停状态
- *
+ * @brief 订阅底盘驻停状态 
+ * 
  * @param halt 驻停状态
  */
 void sub_chassis_halt(bool halt) {
@@ -70,8 +72,8 @@ void sub_chassis_halt(bool halt) {
 }
 
 /**
- * @brief 订阅世界坐标指针
- *
+ * @brief 订阅世界坐标指针 
+ * 
  * @note 在底盘init处指向指定位置
  * @param yaw_angle 世界坐标下的位置
  */
@@ -81,9 +83,9 @@ void sub_chassis_world_yaw(float *yaw_angle) {
 
 /**
  * @brief 订阅摩擦轮参数
- *
+ * 
  * @param friction_speed 摩擦轮shoot的速度
- * @return * void
+ * @return * void 
  */
 void sub_friction_data(float friction_speed) {
     pub_to_slave_data.friction_speed_5065 = friction_speed;
@@ -91,9 +93,9 @@ void sub_friction_data(float friction_speed) {
 
 /**
  * @brief 订阅摩擦轮发射状态
- *
+ * 
  * @param shoot_flag 标志位shoot：0
- * @return * void
+ * @return * void 
  */
 void sub_friction_flag(uint8_t shoot_flag) {
     pub_to_slave_data.shoot_flag = shoot_flag;
@@ -109,13 +111,13 @@ typedef enum __attribute((packed)) {
 
 /**
  * @brief sub-pub一直轮询的任务
- *
+ * 
  * @note - 主负板发送任务
- * @param pvParameters
+ * @param pvParameters 
  */
 void sub_pub_task(void *pvParameters) {
     UNUSED(pvParameters);
-    //serial_flag_t send_act_data = SERIAL_STOP_SERVICE;    // 没用到
+    serial_flag_t send_nuc_data = SERIAL_STOP_SERVICE;
 
     /* 初始化pub_to_slave_data,防止被编译器优化*/
     memset(&pub_to_slave_data, 0, sizeof(pub_to_slave_data));
@@ -123,10 +125,8 @@ void sub_pub_task(void *pvParameters) {
     /* 主板发送给从板 */
     message_register_send_uart(MSG_TO_SLAVE, &usart2_handle, 128);
     /* F4-小电脑 */
-    // message_register_send_uart(MSG_NUC, NUC_UART_HANDLE, 32);
 
-    /* F4-码盘 */
-    // message_register_send_uart(MSG_ACTION, ACT_POS_USART_HANDLE, 32);
+    message_register_send_uart(MSG_NUC, NUC_UART_HANDLE, 32);
 
     while (1) {
         /* 更新world—yaw数据 */
@@ -136,11 +136,6 @@ void sub_pub_task(void *pvParameters) {
                           (uint8_t *)&pub_to_slave_data,
                           sizeof(pub_to_slave_data));
 
-        /* 通过串口7发送g_nuc_pos_data的x、y、yaw值 */
-        message_send_data(MSG_ACTION, MSG_DATA_CUSTOM,
-                          (uint8_t *)&g_action_pos_data,
-                          sizeof(g_action_pos_data));
-
         vTaskDelay(2);
     }
 }
@@ -148,7 +143,7 @@ void sub_pub_task(void *pvParameters) {
 nuc_pos_data_t g_nuc_pos_data;
 /**
  * @brief 小电脑接收回调函数
- *
+ * 
  * @param msg_length 消息帧长度
  * @param msg_id_type 消息 ID 和数据类型 (高四位为 ID, 低四位为数据类型)
  * @param[in] msg_data 消息数据接收区
@@ -178,7 +173,6 @@ void msg_polling_task(void *pvParameters) {
 
     /* 注册action接收 */
     act_position_register_uart(ACT_POS_USART_HANDLE);
-    //message_register_recv_callback(MSG_ACTION, act_position_parse_data);  //应该已经在注册action回收中注册过回调了，但是那是HAL库回调，这是注册msg_protocol的回调
 
     /* 注册小电脑接收 */
     // message_register_polling_uart(MSG_NUC, NUC_UART_HANDLE, 512, 512);

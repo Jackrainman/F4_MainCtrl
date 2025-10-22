@@ -23,6 +23,7 @@ extern "C" {
 #include <stdbool.h>
 #include <math.h>
 #include <string.h>
+#include <stdio.h>
 
 /* 投篮赛点位 */
 #define BASKET_OFFSET_X -16.0f
@@ -72,6 +73,7 @@ typedef struct {
 extern nuc_pos_data_t g_nuc_pos_data;
 
 extern TaskHandle_t sub_pub_task_handle;
+extern TaskHandle_t action_position_recv_task_handle;
 extern TaskHandle_t msg_polling_task_handle;
 void sub_pub_task(void *pvParameters);
 void msg_polling_task(void *pvParameters);

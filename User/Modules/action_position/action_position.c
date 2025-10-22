@@ -2,19 +2,20 @@
  * @file    action_position.h
  * @author  Deadline039
  * @brief   东大全场定位解析代码
- * @version 1.2
+ * @version 0.2
  * @date    2023-11-11
+ * @ref
  */
 
 #include "action_position.h"
 
 /* 串口通信句柄 */
-static UART_HandleTypeDef *send_uart = NULL;
+static UART_HandleTypeDef *uart_handle = NULL;
 
 /**
  * @brief 全场定位数据
  */
-act_pos_data_t g_action_pos_data;
+act_pos_data_t g_action_pos_data = {0};
 
 /* 从串口接收到的字符 */
 static uint8_t g_uart_byte;
@@ -84,7 +85,6 @@ static void uart_receive_callback(UART_HandleTypeDef *huart) {
                 g_action_pos_data.x = data_buffer.act_val[3];
                 g_action_pos_data.y = data_buffer.act_val[4];
                 g_action_pos_data.yaw_speed = data_buffer.act_val[5];
-                g_action_pos_data.recv_cplt = true;
             }
             recv_count = 0;
         } break;
@@ -93,6 +93,7 @@ static void uart_receive_callback(UART_HandleTypeDef *huart) {
             recv_count = 0;
         } break;
     }
+    
     HAL_UART_Receive_IT(huart, &g_uart_byte, 1);
 }
 
@@ -106,24 +107,11 @@ void act_position_register_uart(UART_HandleTypeDef *huart) {
         return;
     }
 
-    send_uart = huart;
+    uart_handle = huart;
     HAL_UART_Receive_IT(huart, &g_uart_byte, 1);
     HAL_UART_RegisterCallback(huart, HAL_UART_RX_COMPLETE_CB_ID,
                               uart_receive_callback);
 }
-
-/**
- * @brief 解析数据
- *
- * @param data 数据内容
- * @param len 数据长度
- * @note 解析完毕后会更新`g_action_pos_data`全局变量
- */
-// void act_position_parse_data(uint8_t *data, uint32_t len) {
-//     for (uint32_t i = 0; i < len; ++i) {
-//         act_position_parse_byte(data[i]);
-//     }
-// }
 
 /**
  * @brief 字符串拼接, 构造全场定位的发送数据
@@ -132,7 +120,8 @@ void act_position_register_uart(UART_HandleTypeDef *huart) {
  * @param[in] source_str 源字符串
  * @param[in] len 字符串长度
  */
-static void act_strcat(uint8_t *output_str, uint8_t *source_str, uint16_t len) {
+static void stract(uint8_t *output_str, uint8_t *source_str, uint16_t len) {
+
     uint16_t start_ptr = 0;
     while (output_str[start_ptr] != '\0') {
         start_ptr++;
@@ -144,8 +133,8 @@ static void act_strcat(uint8_t *output_str, uint8_t *source_str, uint16_t len) {
 
 /**
  * @brief 设置新数据结构体, 由于是共用体,
- *        将小数放入时会自动将 data 数组变成小数的内存内容,
- *        无需再进行各种二进制操作把浮点数转换成 byte
+ *        将小数放入时会自动将data数组变成小数的内存内容,
+ *        无需再进行各种二进制操作把浮点数转换成byte
  */
 static union {
     float new_data;
@@ -153,58 +142,58 @@ static union {
 } new_set;
 
 /**
- * @brief 更新 X 坐标
+ * @brief 更新X坐标
  *
- * @param new_x 新的 x
+ * @param new_x 新的x
  * @note 为了防止重复更新全场定位数据忘记延时, 导致全场定位数据出错,
- *       函数内部会延时 10ms
+ *       函数内部会延时10ms
  */
 void act_position_update_x(float new_x) {
     uint8_t update_data[8] = "ACTX";
     new_set.new_data = new_x;
-    act_strcat(update_data, new_set.data, 4);
-    HAL_UART_Transmit(send_uart, update_data, 8, 0xFFFF);
+    stract(update_data, new_set.data, 4);
+    HAL_UART_Transmit(uart_handle, update_data, 8, 0xFFFF);
     HAL_Delay(10);
 }
 
 /**
- * @brief 更新 Y 坐标
+ * @brief 更新Y坐标
  *
- * @param new_y 新的 y
+ * @param new_y 新的y
  * @note 为了防止重复更新全场定位数据忘记延时, 导致全场定位数据出错,
- *       函数内部会延时 10ms
+ *       函数内部会延时10ms
  */
 void act_position_update_y(float new_y) {
     uint8_t update_data[8] = "ACTY";
     new_set.new_data = new_y;
-    act_strcat(update_data, new_set.data, 4);
-    HAL_UART_Transmit(send_uart, update_data, 8, 0xFFFF);
+    stract(update_data, new_set.data, 4);
+    HAL_UART_Transmit(uart_handle, update_data, 8, 0xFFFF);
     HAL_Delay(10);
 }
 
 /**
- * @brief 更新航向角 (z 轴)
+ * @brief 更新航向角(z轴)
  *
  * @param new_yaw 新的航向角
  * @note 为了防止重复更新全场定位数据忘记延时, 导致全场定位数据出错,
- *       函数内部会延时 10ms
+ *       函数内部会延时10ms
  */
 void act_position_update_yaw(float new_yaw) {
     uint8_t update_data[8] = "ACTJ";
     new_set.new_data = new_yaw;
-    act_strcat(update_data, new_set.data, 4);
-    HAL_UART_Transmit(send_uart, update_data, 8, 0xFFFF);
+    stract(update_data, new_set.data, 4);
+    HAL_UART_Transmit(uart_handle, update_data, 8, 0xFFFF);
     HAL_Delay(10);
 }
 
 /**
- * @brief 清空全场定位数据, 从 0 开始
+ * @brief 清空全场定位数据, 从0开始
  *
  * @note 为了防止重复更新全场定位数据忘记延时, 导致全场定位数据出错,
- *       函数内部会延时 10ms
+ *       函数内部会延时10ms
  */
 void act_position_reset_data(void) {
     uint8_t update_data[8] = "ACT0";
-    HAL_UART_Transmit(send_uart, update_data, 8, 0xFFFF);
+    HAL_UART_Transmit(uart_handle, update_data, 8, 0xFFFF);
     HAL_Delay(10);
 }

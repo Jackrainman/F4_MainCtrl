@@ -65,6 +65,7 @@ void start_task(void *pvParameters) {
     /* 创建后台任务 */
     xTaskCreate(sub_pub_task, "sub_pub_task", 256, NULL, 4,
                 &sub_pub_task_handle);
+    
     vTaskDelete(start_task_handle);
     taskEXIT_CRITICAL();
 }

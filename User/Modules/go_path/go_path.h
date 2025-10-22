@@ -28,7 +28,6 @@ typedef enum {
     POINT_TYPE_NUC_FLAT = 0,
     POINT_TYPE_DT35,
     POINT_TYPE_TARGET_RADIUM,
-    POINT_TYPE_ACTION,
 
     POINT_TYPE_NUM
 } go_path_point_type_t;

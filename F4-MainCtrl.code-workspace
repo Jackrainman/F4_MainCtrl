@@ -25,8 +25,7 @@
             "editor.tabSize": 4,
             "editor.autoIndent": "advanced"
         },
-        "cortex-debug.variableUseNaturalFormat": true,
-        "files.autoSave": "afterDelay"
+        "cortex-debug.variableUseNaturalFormat": true
     },
     "extensions": {
         "recommendations": [

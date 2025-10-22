@@ -134,9 +134,9 @@ virtualFolder:
         - path: User/Modules/logger/logger.c
         - path: User/Modules/message-protocol/msg_protocol.c
         - path: User/Modules/remote_ctrl/remote_ctrl.c
-        - path: User/Modules/action_position/action_position.c
         - path: User/Modules/odometry_string/odometry_string.c
         - path: User/Modules/go_path/go_path.c
+        - path: User/Modules/action_position/action_position.c
       folders: []
     - name: SEEGER
       files: []
@@ -208,6 +208,7 @@ targets:
       - <virtual_root>/Drivers/HAL_Driver/stm32f4xx_ll_fmc.c
       - <virtual_root>/Drivers/HAL_Driver/stm32f4xx_hal_spi.c
       - <virtual_root>/SEEGER/SystemView
+      - <virtual_root>/Modules/odometry_string.c
     toolchain: AC6
     toolchainConfigMap:
       AC6:
@@ -275,16 +276,6 @@ targets:
       OpenOCD:
         baseAddr: "0x08000000"
         bin: ""
-        interface: stlink
+        interface: cmsis-dap
         target: stm32f4x
-      STLink:
-        address: "0x08000000"
-        bin: ""
-        elFile: None
-        optionBytes: .eide/debug.st.option.bytes.ini
-        otherCmds: ""
-        proType: SWD
-        resetMode: default
-        runAfterProgram: true
-        speed: 4000
     uploader: OpenOCD
