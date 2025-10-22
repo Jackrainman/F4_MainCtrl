@@ -123,10 +123,10 @@ void sub_pub_task(void *pvParameters) {
     /* 主板发送给从板 */
     message_register_send_uart(MSG_TO_SLAVE, &usart2_handle, 128);
     /* F4-小电脑 */
-    //message_register_send_uart(MSG_NUC, NUC_UART_HANDLE, 32);
+    // message_register_send_uart(MSG_NUC, NUC_UART_HANDLE, 32);
 
     /* F4-码盘 */
-    message_register_send_uart(MSG_ACTION, ACT_POS_USART_HANDLE, 32);
+    // message_register_send_uart(MSG_ACTION, ACT_POS_USART_HANDLE, 32);
 
     while (1) {
         /* 更新world—yaw数据 */
@@ -136,10 +136,15 @@ void sub_pub_task(void *pvParameters) {
                           (uint8_t *)&pub_to_slave_data,
                           sizeof(pub_to_slave_data));
 
+        /* 通过串口7发送g_nuc_pos_data的x、y、yaw值 */
+        message_send_data(MSG_ACTION, MSG_DATA_CUSTOM,
+                          (uint8_t *)&g_action_pos_data,
+                          sizeof(g_action_pos_data));
+
         vTaskDelay(2);
     }
 }
-//extern act_pos_data_t g_action_pos_data;
+
 nuc_pos_data_t g_nuc_pos_data;
 /**
  * @brief 小电脑接收回调函数

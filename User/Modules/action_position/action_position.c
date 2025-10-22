@@ -93,7 +93,7 @@ static void uart_receive_callback(UART_HandleTypeDef *huart) {
             recv_count = 0;
         } break;
     }
-    //HAL_UART_Receive_IT(huart, &g_uart_byte, 1);
+    HAL_UART_Receive_IT(huart, &g_uart_byte, 1);
 }
 
 /**
