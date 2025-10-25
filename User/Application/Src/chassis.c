@@ -4,9 +4,9 @@
  * @brief 底盘控制相关任务
  * @version 0.1
  * @date 2025-04-25
- * 
+ *
  * @copyright Copyright (c) 2025
- * 
+ *
  */
 #include "includes.h"
 #include "remote_ctrl/remote_ctrl.h"
@@ -49,8 +49,11 @@ chassis_state_t chassis_state = {
 };
 
 /* go_path中相关参数 */
-pid_t nuc_flat_speed_pid;
-pid_t nuc_flat_angle_pid;
+// pid_t nuc_flat_speed_pid;
+// pid_t nuc_flat_angle_pid;
+
+pid_t action_flat_speed_pid;
+pid_t action_flat_angle_pid;
 
 /* 固定朝向参数 */
 pid_t orientation_angle_pid; /*!< 固定朝向自转速度pid */
@@ -72,8 +75,8 @@ enum {
 /* 固定点位+可变点位函数 */
 pos_node_t pos_array[POS_NUM + EX_NODE_NUM] = {
     [0] = {-0.12f, 0.59f, 0.0f, POINT_TYPE_NUC_FLAT},
-    [1] = {3656.11f, 3314.07f, 0.0f, POINT_TYPE_NUC_FLAT},
-    [2] = {-2614.78f, -3600.57f, 88.09f, POINT_TYPE_NUC_FLAT},
+    [1] = {200.0f, 200.0f, 30.0f, POINT_TYPE_NUC_FLAT},
+    [2] = {-21.00f, -40.57f, 120.09f, POINT_TYPE_NUC_FLAT},
     [3] = {0, 0, 0, POINT_TYPE_NUC_FLAT}, /*!< 点位信息 */
 
     /* 可变点位信息 */
@@ -82,10 +85,10 @@ pos_node_t pos_array[POS_NUM + EX_NODE_NUM] = {
 
 /**
  * @brief 底盘设置自锁函数
- * 
- * @param halt 
+ *
+ * @param halt
  *        -[val] 1-自锁
- *        -[val] 0-取消自锁 
+ *        -[val] 0-取消自锁
  * */
 void chassis_set_halt(bool halt) {
     sub_chassis_halt(halt);
@@ -96,9 +99,9 @@ void chassis_set_halt(bool halt) {
 
 /**
  * @brief 写入底盘状态函数
- * 
- * @param status 
- * @return 
+ *
+ * @param status
+ * @return
  */
 void chassis_set_status(chassis_status_t status) {
     static chassis_status_queue_t chassis_statue_msg;
@@ -110,9 +113,9 @@ void chassis_set_status(chassis_status_t status) {
 
 /**
  * @brief 控制底盘状态函数
- * 
- * @param event 
- * @return 
+ *
+ * @param event
+ * @return
  */
 void chassis_set_ctrl(chassis_event_t event) {
     static chassis_ctrl_queue_t chassis_ctrl_msg;
@@ -128,8 +131,8 @@ void chassis_ctrl_queue_reset(void) {
 
 /**
  * @brief 手动控制函数
- * 
- * @return 
+ *
+ * @return
  */
 void chassis_set_manual_ctrl(void) {
 #if 1
@@ -147,7 +150,7 @@ void chassis_set_manual_ctrl(void) {
 
 /**
  * @brief 自动跑点
- * 
+ *
  */
 void chassis_set_point_run(uint8_t index) {
     sub_chassis_world_yaw(&g_action_pos_data.yaw);
@@ -169,7 +172,7 @@ static float orientation_aim_angle; /* 目标点夹角，单位RAD */
 
 /**
  * @brief 固定朝向转动速度解算
- * 
+ *
  * @param pos_x 目标点在世界坐标系下的x轴坐标
  * @param pos_y 目标点在世界坐标系下的y轴坐标
  * @return 返回转动速度
@@ -192,9 +195,9 @@ float constant_orientation_resolve(float pos_x, float pos_y) {
 
 /**
  * @brief 通过目标半径计算目标点位-生成跑点目标
- * 
+ *
  * @param target_radium 目标半径
- * @return 
+ * @return
  */
 uint8_t chassis_overwrite_pointarray(uint8_t target_index) {
     float target_radium;
@@ -246,8 +249,8 @@ label:
  */
 
 /**
- * @brief 遥控器按键注册函数 
- * 
+ * @brief 遥控器按键注册函数
+ *
  * @param key 键值
  * @param key_event 事件
  */
@@ -329,7 +332,7 @@ void chassis_remote_key(uint8_t key, remote_key_event_t key_event) {
 /**
  * @brief 底盘控制任务：用于处理底盘控制队列消息
  *        (给其他模块控制底盘的接口，主要用于接收main-ctrl的消息)
- * @param pvParametes 
+ * @param pvParametes
  */
 void chassis_ctrl_task(void *pvParametes) {
     UNUSED(pvParametes);
@@ -387,9 +390,9 @@ void chassis_ctrl_task(void *pvParametes) {
 }
 
 /**
- * @brief 底盘手动控制任务 
- * 
- * @param pvParametes UNUSED 
+ * @brief 底盘手动控制任务
+ *
+ * @param pvParametes UNUSED
  */
 void chassis_manual_ctrl_task(void *pvParametes) {
     UNUSED(pvParametes);
@@ -438,8 +441,8 @@ pid_t radium_speed_pid;
 pid_t radium_angle_pid;
 /**
  * @brief 底盘自动控制任务(定点)
- * 
- * @param pvParameters 
+ *
+ * @param pvParameters
  */
 void chassis_auto_ctrl_task(void *pvParameters) {
     UNUSED(pvParameters);
@@ -453,12 +456,12 @@ void chassis_auto_ctrl_task(void *pvParameters) {
                           &g_nuc_pos_data.y, &g_nuc_pos_data.yaw);
 
     /* go_path中pid点位类型初始化 */
-    pid_init(&nuc_flat_speed_pid, 3000, 1000, 0.0f, 50000.0f, POSITION_PID,
+    pid_init(&action_flat_speed_pid, 3000, 1000, 0.0f, 50000.0f, POSITION_PID,
              1.5f, 0.1f, 0.0f);
-    pid_init(&nuc_flat_angle_pid, 500, 15, 0.0f, 180.0f, POSITION_PID, 1.5f,
+    pid_init(&action_flat_angle_pid, 500, 15, 0.0f, 180.0f, POSITION_PID, 1.5f,
              0.01f, 0.5f);
-    go_path_pidpoint_init(&nuc_flat_speed_pid, &nuc_flat_angle_pid, 3.0, 0.5,
-                          POINT_TYPE_NUC_FLAT, LOCATION_TYPE_NUC);
+    go_path_pidpoint_init(&action_flat_speed_pid, &action_flat_angle_pid, 3.0, 0.5,
+                          POINT_TYPE_NUC_FLAT, LOCATION_TYPE_ACTION);
     /* 跑环的pid*/
     // pid_init(&radium_speed_pid, 500, 500 / 2, 0.0f, 50000.0f, POSITION_PID,
     //          1.5f / 5.0f, 0.1f, 0.0f);
@@ -467,7 +470,7 @@ void chassis_auto_ctrl_task(void *pvParameters) {
     pid_init(&radium_angle_pid, 200, 8, 0.0f, 500.0f, POSITION_PID, 3.2 * 10.0f,
              0.0f, 2.0 * 10.0f);
     go_path_pidpoint_init(&radium_speed_pid, &radium_angle_pid, 20.0, 0.5,
-                          POINT_TYPE_TARGET_RADIUM, LOCATION_TYPE_NUC);
+                          POINT_TYPE_TARGET_RADIUM, LOCATION_TYPE_ACTION);
 
     /* 默认挂起自动任务 */
     vTaskSuspend(chassis_auto_ctrl_task_handle);
@@ -498,8 +501,8 @@ void chassis_auto_ctrl_task(void *pvParameters) {
 
 /**
  * @brief 初始化底盘相关函数
- * 
- * @return * void 
+ *
+ * @return * void
  */
 void chassis_init(void) {
     /* 定义底盘控制函数 */

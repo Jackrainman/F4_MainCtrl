@@ -82,8 +82,8 @@ static void uart_receive_callback(UART_HandleTypeDef *huart) {
                 g_action_pos_data.yaw = data_buffer.act_val[0];
                 g_action_pos_data.roll = data_buffer.act_val[1];
                 g_action_pos_data.pitch = data_buffer.act_val[2];
-                g_action_pos_data.x = data_buffer.act_val[3];
-                g_action_pos_data.y = data_buffer.act_val[4];
+                g_action_pos_data.x = -data_buffer.act_val[3];      //改为负
+                g_action_pos_data.y = -data_buffer.act_val[4];
                 g_action_pos_data.yaw_speed = data_buffer.act_val[5];
             }
             recv_count = 0;
@@ -93,7 +93,7 @@ static void uart_receive_callback(UART_HandleTypeDef *huart) {
             recv_count = 0;
         } break;
     }
-    
+
     HAL_UART_Receive_IT(huart, &g_uart_byte, 1);
 }
 
