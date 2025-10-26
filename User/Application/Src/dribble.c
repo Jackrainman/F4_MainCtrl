@@ -17,12 +17,14 @@
  *     12 13
  */
 #define DRIBBLE_WHOLE_PROCESS_KEY 12
-#define DRIBBLE_CLAMP_KEY         6
-#define DRIBBLE_PUSH_KEY          7
+#define DRIBBLE_CLAMP_KEY         26
+#define DRIBBLE_PUSH_KEY          27
 #define DRIBBLE_HANDOVER_KEY      13
 #define DRIBBLE_PART_PROCESS_KEY  14
+#define DRIBBLE_PUSH_IN_KEY       7
+#define DRIBBLE_PUSH_OUT_KEY      6
 
-#define HANDOVER_DEBUG            1
+#define HANDOVER_DEBUG            0
 
 TaskHandle_t dribble_ctrl_task_handle;
 void dribble_ctrl_task(void *pvParameters);
@@ -81,6 +83,12 @@ void key_dribble_ball(uint8_t key, remote_key_event_t key_event) {
                 dribble_ctrl_msg.event = DRIBBLE_PUSH_OUT;
                 push_flag = true;
             }
+            break;
+        case DRIBBLE_PUSH_IN_KEY:
+            dribble_ctrl_msg.event = DRIBBLE_MOVE_TO_SHOOT;
+            break;
+        case DRIBBLE_PUSH_OUT_KEY:
+            dribble_ctrl_msg.event = DRIBBLE_MOVE_TO_CATCH;
             break;
         case DRIBBLE_HANDOVER_KEY: {
 #if HANDOVER_DEBUG
@@ -213,6 +221,20 @@ void catch_to_shoot(void) {
 }
 
 /**
+ * @brief catch to shoot
+ * 
+ */
+void catch_to_shoot_push_in(void) {
+    /* 伸出接球装置*/
+    set_catch_motor_statue(CATCH_STATUS_TO_CATCH);
+}
+
+void catch_to_shoot_push_out(void) {
+    /* 收回接球装置*/
+    set_catch_motor_statue(CATCH_STATUS_TO_SHOOT);
+}
+
+/**
  * @brief 接球装置伸缩任务
  * 
  * @param pvParameters 
@@ -269,6 +291,7 @@ void catch_motor_ctrl_task(void *pvParameters) {
         rpm_out = pid_calc(&catch_motor_speed_pid, target_rpm,
                            catch_motor_handle.speed_rpm);
 
+                           
         dji_motor_set_current(can1_selected, DJI_MOTOR_GROUP1, (int16_t)rpm_out,
                               0, 0, 0);
         vTaskDelay(10);
@@ -431,6 +454,8 @@ void dribble_ctrl_task(void *pvParameters) {
             case DRIBBLE_MOVE_TO_SHOOT: {
                 /* 将2006收回接球装置 */
                 set_catch_motor_statue(CATCH_STATUS_TO_SHOOT);
+                shoot_machine_set_ctrl(16000.0f, SHOOT_MACHINE_EVENT_FRIBELT_PRE);
+                
             } break;
             case DRIBBLE_HANDLEOVER_BALL: {
                 /* 将2006接球装置收回 */
@@ -471,6 +496,10 @@ void dribble_init(void) {
     remote_register_key_callback(DRIBBLE_PUSH_KEY, REMOTE_KEY_PRESS_DOWN,
                                  key_dribble_ball);
     remote_register_key_callback(DRIBBLE_HANDOVER_KEY, REMOTE_KEY_PRESS_DOWN,
+                                 key_dribble_ball);
+    remote_register_key_callback(DRIBBLE_PUSH_IN_KEY, REMOTE_KEY_PRESS_DOWN,
+                                 key_dribble_ball);
+    remote_register_key_callback(DRIBBLE_PUSH_OUT_KEY, REMOTE_KEY_PRESS_DOWN,
                                  key_dribble_ball);
 
     /* 创建运球任务 */

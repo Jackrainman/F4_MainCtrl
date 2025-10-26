@@ -74,9 +74,9 @@ enum {
 
 /* 固定点位+可变点位函数 */
 pos_node_t pos_array[POS_NUM + EX_NODE_NUM] = {
-    [0] = {-0.12f, 0.59f, 0.0f, POINT_TYPE_NUC_FLAT},
-    [1] = {200.0f, 200.0f, 30.0f, POINT_TYPE_NUC_FLAT},
-    [2] = {-21.00f, -40.57f, 120.09f, POINT_TYPE_NUC_FLAT},
+    [0] = {-0.12f, 0.59f, -90.0f, POINT_TYPE_NUC_FLAT},
+    [1] = {2340.195f, 990.025f, 52.0f, POINT_TYPE_NUC_FLAT},
+    [2] = {-100.0f, -100.0f, 30.0f, POINT_TYPE_NUC_FLAT},
     [3] = {0, 0, 0, POINT_TYPE_NUC_FLAT}, /*!< 点位信息 */
 
     /* 可变点位信息 */
@@ -439,6 +439,15 @@ void chassis_manual_ctrl_task(void *pvParametes) {
 
 pid_t radium_speed_pid;
 pid_t radium_angle_pid;
+
+/* 直线跑点的pid */
+pid_t linear_speed_pid;
+pid_t linear_angle_pid;
+
+/* 顺序跑点的pid */
+pid_t sequence_speed_pid;
+pid_t sequence_angle_pid;
+
 /**
  * @brief 底盘自动控制任务(定点)
  *
@@ -452,15 +461,15 @@ void chassis_auto_ctrl_task(void *pvParameters) {
     go_path_chassis_ctrl_init(chassis_wheel_ctrl);
     go_path_location_init(LOCATION_TYPE_ACTION, &g_action_pos_data.x,
                           &g_action_pos_data.y, &g_action_pos_data.yaw);
-    go_path_location_init(LOCATION_TYPE_NUC, &g_nuc_pos_data.x,
-                          &g_nuc_pos_data.y, &g_nuc_pos_data.yaw);
+    // go_path_location_init(LOCATION_TYPE_NUC, &g_nuc_pos_data.x,
+    //                       &g_nuc_pos_data.y, &g_nuc_pos_data.yaw);
 
     /* go_path中pid点位类型初始化 */
     pid_init(&action_flat_speed_pid, 3000, 1000, 0.0f, 50000.0f, POSITION_PID,
              1.5f, 0.1f, 0.0f);
     pid_init(&action_flat_angle_pid, 500, 15, 0.0f, 180.0f, POSITION_PID, 1.5f,
              0.01f, 0.5f);
-    go_path_pidpoint_init(&action_flat_speed_pid, &action_flat_angle_pid, 3.0, 0.5,
+    go_path_pidpoint_init(&action_flat_speed_pid, &action_flat_angle_pid, 20.0, 3.0,
                           POINT_TYPE_NUC_FLAT, LOCATION_TYPE_ACTION);
     /* 跑环的pid*/
     // pid_init(&radium_speed_pid, 500, 500 / 2, 0.0f, 50000.0f, POSITION_PID,
@@ -471,6 +480,22 @@ void chassis_auto_ctrl_task(void *pvParameters) {
              0.0f, 2.0 * 10.0f);
     go_path_pidpoint_init(&radium_speed_pid, &radium_angle_pid, 20.0, 0.5,
                           POINT_TYPE_TARGET_RADIUM, LOCATION_TYPE_ACTION);
+
+     /* 直线跑点的pid初始化 */
+    pid_init(&linear_speed_pid, 3000, 1000, 0.0f, 50000.0f, POSITION_PID,
+             1.5f, 0.1f, 0.0f);
+    pid_init(&linear_angle_pid, 500, 15, 0.0f, 180.0f, POSITION_PID, 7.0f,  // 直线跑点可能需要更高的角度响应
+             0.03f, 0.5f);
+    go_path_pidpoint_init(&linear_speed_pid, &linear_angle_pid, 20.0, 0.5,
+                          POINT_TYPE_LINEAR, LOCATION_TYPE_ACTION);
+
+     /* 顺序跑点的pid初始化 */
+    pid_init(&sequence_speed_pid, 2500, 800, 0.0f, 50000.0f, POSITION_PID,
+             2.0f, 0.15f, 0.0f);  // 顺序跑点可能需要更平滑的速度控制
+    pid_init(&sequence_angle_pid, 500, 15, 0.0f, 180.0f, POSITION_PID, 1.8f,
+             0.0f, 0.3f);
+    go_path_pidpoint_init(&sequence_speed_pid, &sequence_angle_pid, 2.0, 0.5,
+                          POINT_TYPE_X_Y_YAW_SEQUENCE, LOCATION_TYPE_ACTION);
 
     /* 默认挂起自动任务 */
     vTaskSuspend(chassis_auto_ctrl_task_handle);
@@ -556,10 +581,10 @@ void chassis_init(void) {
                                  chassis_remote_key);
     remote_register_key_callback(CHASSIS_SET_HALT_KEY, REMOTE_KEY_PRESS_DOWN,
                                  chassis_remote_key);
-    // remote_register_key_callback(CHASSIS_SET_WORLD, REMOTE_KEY_PRESS_UP,
-    //                              chassis_remote_key);
-    // remote_register_key_callback(CHASSIS_SET_SELF, REMOTE_KEY_PRESS_UP,
-    //                              chassis_remote_key);
+     remote_register_key_callback(CHASSIS_SET_WORLD, REMOTE_KEY_PRESS_UP,
+                                  chassis_remote_key);
+     remote_register_key_callback(CHASSIS_SET_SELF, REMOTE_KEY_PRESS_UP,
+                                  chassis_remote_key);
 
 #if 0 /* 固定点位跑点暂不需要 */
     /*按键按下自动跑点松开自动切回手动任务*/

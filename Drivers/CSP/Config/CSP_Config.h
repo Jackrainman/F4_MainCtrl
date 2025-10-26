@@ -889,10 +889,10 @@
 
 //   <o> UART5 Interrupt Priority <0-15>
 //   <i> The Interrupt Priority of UART5
-#define UART5_IT_PRIORITY        1
+#define UART5_IT_PRIORITY        2
 //   <o> UART5 Interrupt SubPriority <0-15>
 //   <i> The Interrupt SubPriority of UART5
-#define UART5_IT_SUB             1
+#define UART5_IT_SUB             3
 
 //   </e>
 #endif /* UART5_IT_ENABLE */
