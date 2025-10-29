@@ -39,7 +39,7 @@ extern const float radium_speed[LOOP_NUM][2];
 extern float g_basket_radius;
 
 /** **********************************************************************************************
- * @defgroup rtos_task 
+ * @defgroup rtos_task
  * @{
  */
 
@@ -62,7 +62,7 @@ void remote_report_task(void *pvParameters);
  */
 
 /** **********************************************************************************************
- * @defgroup sub_pub 
+ * @defgroup sub_pub
  * @{
  */
 typedef struct {
@@ -89,7 +89,7 @@ void sub_friction_data(float friction_speed);
  */
 
 /** **********************************************************************************************
- * @defgroup chassis 
+ * @defgroup chassis
  * @{
  */
 /* 底盘控制消息队列 */
@@ -142,7 +142,7 @@ uint8_t chassis_overwrite_pointarray(uint8_t target_index);
  */
 
 /** **********************************************************************************************
- * @defgroup friction 
+ * @defgroup friction
  * @{
  */
 
@@ -213,7 +213,7 @@ void shoot_machine_set_ctrl(float speed, shoot_machine_event_t event);
  */
 
 /** **********************************************************************************************
- * @defgroup dribble 
+ * @defgroup dribble
  * @{
  */
 typedef enum {

@@ -74,9 +74,9 @@ enum {
 
 /* 固定点位+可变点位函数 */
 pos_node_t pos_array[POS_NUM + EX_NODE_NUM] = {
-    [0] = {-0.12f, 0.59f, -90.0f, POINT_TYPE_NUC_FLAT},
-    [1] = {2340.195f, 990.025f, 52.0f, POINT_TYPE_NUC_FLAT},
-    [2] = {-100.0f, -100.0f, 30.0f, POINT_TYPE_NUC_FLAT},
+    [0] = {-0.0f, 0.0f, 0.0f, POINT_TYPE_NUC_FLAT},
+    [1] = {2362.718f, 1386.255f, 52.678f, POINT_TYPE_NUC_FLAT},
+    [2] = {2947.288f, 3096.193f, 90.0f, POINT_TYPE_NUC_FLAT},
     [3] = {0, 0, 0, POINT_TYPE_NUC_FLAT}, /*!< 点位信息 */
 
     /* 可变点位信息 */
