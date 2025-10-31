@@ -18,11 +18,11 @@
 #define POS_NUM              5 /*!< 点位数量 */
 
 /* 按键宏定义 */
-#define CHASSIS_AIMING_KEY   3  /*!< 底盘自瞄开启 */
-#define CHASSIS_SET_HALT_KEY 1  /*!< 底盘是否自锁 */
-#define CHASSIS_WORLD_KEY    2  /*!< 底盘切手控 */
-#define CHASSIS_SET_WORLD    5  /*!<切换世界坐标系*/
-#define CHASSIS_SET_SELF     11 /*!<切换自身坐标系*/
+#define CHASSIS_AIMING_KEY   15  /*!< 底盘自瞄开启 */
+#define CHASSIS_SET_HALT_KEY 14  /*!< 底盘是否自锁 */
+#define CHASSIS_WORLD_KEY    13  /*!< 底盘切手控 */
+#define CHASSIS_SET_WORLD    1  /*!<切换世界坐标系*/
+#define CHASSIS_SET_SELF     7 /*!<切换自身坐标系*/
 
 /* FreeRTOS-句柄 & 函数声明 */
 TaskHandle_t chassis_manual_ctrl_task_handle; /*!< 手动任务句柄 */
