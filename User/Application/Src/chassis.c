@@ -66,6 +66,7 @@ typedef struct pos_node {
     go_path_point_type_t pos_type;
 } pos_node_t;
 
+
 enum {
     EX_NODE_TARGET_RADIUM, /* 目标半径下的点位 */
 
@@ -75,9 +76,9 @@ enum {
 /* 固定点位+可变点位函数 */
 pos_node_t pos_array[POS_NUM + EX_NODE_NUM] = {
     [0] = {-0.0f, 0.0f, 0.0f, POINT_TYPE_NUC_FLAT},
-    [1] = {2362.718f, 1386.255f, 52.678f, POINT_TYPE_NUC_FLAT},
-    [2] = {2947.288f, 3096.193f, 90.0f, POINT_TYPE_NUC_FLAT},
-    [3] = {0, 0, 0, POINT_TYPE_NUC_FLAT}, /*!< 点位信息 */
+    [1] = {2372.718f, 1389.255f, 61.265f, POINT_TYPE_NUC_FLAT},
+    [2] = {2960.288f, 3112.193f, 88.494f, POINT_TYPE_NUC_FLAT},
+    [3] = {2494.616f, 5111.423f, 120.020f, POINT_TYPE_NUC_FLAT}, /*!< 点位信息 */
 
     /* 可变点位信息 */
     [POS_NUM +
@@ -469,7 +470,7 @@ void chassis_auto_ctrl_task(void *pvParameters) {
              1.5f, 0.1f, 0.0f);
     pid_init(&action_flat_angle_pid, 500, 15, 0.0f, 180.0f, POSITION_PID, 1.5f,
              0.01f, 0.5f);
-    go_path_pidpoint_init(&action_flat_speed_pid, &action_flat_angle_pid, 20.0, 3.0,
+    go_path_pidpoint_init(&action_flat_speed_pid, &action_flat_angle_pid, 20.0, 0.5,
                           POINT_TYPE_NUC_FLAT, LOCATION_TYPE_ACTION);
     /* 跑环的pid*/
     // pid_init(&radium_speed_pid, 500, 500 / 2, 0.0f, 50000.0f, POSITION_PID,

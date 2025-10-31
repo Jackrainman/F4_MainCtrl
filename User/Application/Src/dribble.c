@@ -17,12 +17,12 @@
  *     12 13
  */
 #define DRIBBLE_WHOLE_PROCESS_KEY 12
-#define DRIBBLE_CLAMP_KEY         26
+#define DRIBBLE_CLAMP_KEY         6
 #define DRIBBLE_PUSH_KEY          27
 #define DRIBBLE_HANDOVER_KEY      13
 #define DRIBBLE_PART_PROCESS_KEY  14
 #define DRIBBLE_PUSH_IN_KEY       7
-#define DRIBBLE_PUSH_OUT_KEY      6
+#define DRIBBLE_PUSH_OUT_KEY      8
 
 #define HANDOVER_DEBUG            0
 
